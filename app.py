@@ -3,9 +3,11 @@ from questions import QUESTIONS_ORDER
 from google_sheets import append_booking
 import re
 import os
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'changez_cette_clef')
+
 
 def validate_input(index, value):
     key, label, required = QUESTIONS_ORDER[index]
@@ -25,6 +27,7 @@ def validate_input(index, value):
             return False, "Email invalide."
     return True, ""
 
+
 @app.route("/", methods=["GET", "POST"])
 def chat():
     if "answers" not in session:
@@ -36,30 +39,33 @@ def chat():
         index = session["index"]
         key, label, required = QUESTIONS_ORDER[index]
 
-        if not user_input and not required:
-            session["answers"].append("")
-            session["index"] += 1
-        else:
-            valid, error_msg = validate_input(index, user_input)
-            if not valid:
-                return render_template("chat.html", question=label, error=error_msg, value=user_input)
-            session["answers"].append(user_input)
-            session["index"] += 1
+        # Validation
+        valid, error_msg = validate_input(index, user_input)
+        if not valid:
+            return render_template("chat.html", question=label, error=error_msg, value=user_input)
 
+        # Ajouter le champ (vide si non rempli)
+        session["answers"].append(user_input)
+        session["index"] += 1
+
+        # Fin des questions
         if session["index"] >= len(QUESTIONS_ORDER):
             data = session["answers"]
-            append_booking(data)
-            recap = dict(zip([q[0] for q in QUESTIONS_ORDER], data))
+
+            # Ajouter date/heure d'enregistrement
+            data.append(datetime.now().strftime("%d/%m/%Y %H:%M"))
+
+            append_booking(data)  # Appel unique
+            recap = dict(zip([q[0] for q in QUESTIONS_ORDER] + ["date_enregistrement"], data))
+
             session.clear()
             return render_template("chat.html", recap=recap)
 
+    # Question en cours
     index = session.get("index", 0)
-    if index >= len(QUESTIONS_ORDER):
-        session.clear()
-        return render_template("chat.html", recap=None)
-
     key, label, required = QUESTIONS_ORDER[index]
     return render_template("chat.html", question=label, error="", value="")
+
 
 if __name__ == "__main__":
     app.run(debug=True)
