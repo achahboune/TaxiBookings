@@ -53,9 +53,14 @@ def chat():
             session.clear()
             return render_template("chat.html", recap=recap)
     index = session.get("index", 0)
-    key, label, required = QUESTIONS_ORDER[index]
-    value = ""
-    return render_template("chat.html", question=label, error="", value=value)
+if index >= len(QUESTIONS_ORDER):
+    # Toutes les questions ont été posées
+    session.clear()
+    return render_template("chat.html", recap=None)  # Ou affiche un message de fin
+key, label, required = QUESTIONS_ORDER[index]
+value = ""
+return render_template("chat.html", question=label, error="", value=value)
+
 
 if __name__ == "__main__":
     app.run(debug=True)
