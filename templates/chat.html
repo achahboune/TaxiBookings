@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title>Réservation Taxi Chatbot</title>
 </head>
 <body>
@@ -9,18 +9,18 @@
         <h2>Récapitulatif de votre réservation :</h2>
         <ul>
             {% for k, v in recap.items() %}
-                <li><b>{{ k }}</b>: {{ v }}</li>
+                <li><strong>{{ k }}</strong>: {{ v or '(non renseigné)' }}</li>
             {% endfor %}
         </ul>
         <p>Votre réservation est bien prise en compte. Bonne journée !</p>
     {% else %}
         <form method="post">
-            <label>{{ question }}</label><br>
-            <input type="text" name="answer" value="{{ value }}" autofocus autocomplete="off"><br>
+            <label>{{ question }}</label><br />
+            <input type="text" name="answer" value="{{ value }}" autofocus autocomplete="off" /><br />
             {% if error %}
-                <span style="color: red;">{{ error }}</span><br>
+                <span style="color: red;">{{ error }}</span><br />
             {% endif %}
-            <input type="submit" value="Continuer">
+            <button type="submit">Continuer</button>
         </form>
     {% endif %}
 </body>
