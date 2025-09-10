@@ -1,4 +1,7 @@
 Flask
 gspread
 oauth2client
-
+google-auth
+google-auth-oauthlib
+requests
+gunicorn
